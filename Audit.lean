@@ -1,0 +1,7 @@
+import ScalarSHE
+
+#print axioms SHEStochastic.ScalarManuscriptTheorems.theorem_1_1
+#print axioms SHEStochastic.ScalarManuscriptTheorems.theorem_1_2_i
+#print axioms SHEStochastic.ScalarManuscriptTheorems.theorem_1_2_ii
+#print axioms SHEStochastic.ScalarManuscriptTheorems.theorem_1_2_ii_lipschitz
+#print axioms SHEStochastic.ScalarPhysicalFullLaw.realizes_iff

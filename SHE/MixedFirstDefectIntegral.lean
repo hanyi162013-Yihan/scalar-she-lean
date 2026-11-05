@@ -1,0 +1,114 @@
+module
+
+public import SHE.MixedFirstDefectRMS
+public import SHE.ControlledReferenceFamilyDefectL1
+public import SHE.RootHistoryCurrentMeasure
+public import SHE.NativeBesselParameterAverageAE
+public import SHE.HistoryMeasureGeometry
+public import SHE.MixedCanonicalRootFields
+public import SHE.DefectRelativeFactor
+public import SHE.DefectCombinedTime
+public import SHE.NativeBesselFieldAE
+public import SHE.NativeSignedHaarProcess
+public import SHE.ControlledScalarReference
+public import SHE.ControlledThetaDefectEnvelope
+public import SHE.MixedJointUncutDefectTrace
+
+@[expose] public section
+noncomputable section
+set_option autoImplicit false
+set_option backward.isDefEq.respectTransparency false
+set_option maxHeartbeats 1800000
+
+namespace SHE.MixedFirstDefectIntegral
+open Set MeasureTheory Real AddCircle StoppedFourier OrthogonalItoChannels DyadicApproximation PredictableL2
+  NativeHeatObservation CutoffWordLevel CutoffWordHistories CutoffCarriers ControlledProfile
+  ControlledReferenceLevel PhysicalChainArrays PhysicalParentGeometry PhysicalScoreChain HistoryProductMeasure
+  CoveredControlledLaw
+open scoped NNReal ENNReal BigOperators
+open Classical
+local instance mixedFirstDefectRMS_period:Fact (0<2*π):=⟨by positivity⟩
+local instance mixedFirstDefectRMS_unit:Fact (0<(1:ℝ)):=⟨zero_lt_one⟩
+local instance mixedFirstDefectRMS_sigma:MeasurableSpace CircleL2:=borel _
+local instance mixedFirstDefectRMS_borel:BorelSpace CircleL2:=⟨rfl⟩
+variable {Ω:Type}[MeasurableSpace Ω]
+variable (𝓕:Filtration ℝ≥0 ‹MeasurableSpace Ω›)(μ:Measure Ω)[IsProbabilityMeasure μ](H:ℝ≥0)
+variable (Λ κ:ℝ)(hκ:0<κ){aU aV:ℝ→ℝ}(haU:Measurable aU)(haV:Measurable aV){ell M:ℝ}
+variable (hell:0<ell)(hbU:∀z,ell≤aU z ∧ aU z≤M)(hbV:∀z,ell≤aV z ∧ aV z≤M)
+variable (I₀ I₁:StandardTerminalIto (C:=RealHaarIntegrand.Columns) (E:=RealL2) 𝓕 μ H)
+variable (u₀ v₀:RealL2)
+variable (S:MixedNativeAdditiveResidualPair.Solution 𝓕 μ H Λ κ hκ haU haV hell hbU hbV I₀ I₁ u₀ v₀)
+variable (P:CanonicalCovariance.ProfileParameters)(hAs:SmoothCylinders.BoundedSmooth (fun z=>κ+aV z))
+variable (θ:ℝ)(v b:ℝ≥0)(hvb:v≤b)
+variable (F:HeatCircle→WordRecursion.State 1→ℝ)(hF:UniformSmooth.UniformBoundedSmooth F)
+variable (hFm:Measurable (fun z:HeatCircle×WordRecursion.State 1=>F z.1 z.2))
+local notation "Z"=>ControlledScalarReference.observations b
+local notation "Base"=>ControlledReferenceThetaGeometry.level P (fun z=>κ+aV z) hAs Λ v b hvb Z
+  (fun _ _=>le_rfl) (fun _ _=>le_rfl) F hF hFm
+local notation "Zero"=>Base (0,(0,0))
+local notation "R₀"=>referenceData P (fun z=>κ+aV z) hAs Λ 0 v b hvb (0,0)
+
+
+local notation "Pt"=>MixedFirstDefectRMS.point 𝓕 μ H Λ κ hκ haU haV hell hbU hbV I₀ I₁ u₀ v₀ S
+  P hAs θ v b hvb F hF hFm
+local notation "Sp"=>MixedFirstDefectRMS.spatialPoint 𝓕 μ H Λ κ hκ haU haV hell hbU hbV I₀ I₁ u₀ v₀ S
+  P hAs θ v b hvb F hF hFm
+local notation "Field"=>MixedFirstDefectRMS.field 𝓕 μ H Λ κ hκ haU haV hell hbU hbV I₀ I₁ u₀ v₀ S
+  P hAs θ v b hvb F hF hFm
+local notation "past"=>MixedNativeRandomReferenceStep.randomParameter
+  𝓕 μ H Λ κ hκ haU haV hell hbU hbV I₀ I₁ u₀ v₀ S v
+variable (hsmall:ProfileStability.memoryConstant P.lower P.holder P.exponent*
+  ProfileVolterra.powerConstant ((P.exponent-2)/4)*P.horizon^(P.exponent/4)≤1/2)
+
+include hsmall in
+/-- Joint measurability of the literal current first-defect field,
+including the actual random controlled reference input. -/
+theorem point_measurable (hΛ:0≤Λ)(k:ℕ):Measurable
+    (fun z:(History HeatCircle k×Ω)×ℝ=>Pt k z.1.1 z.1.2 z.2):=by
+  have hu:StronglyMeasurable past:=(MixedNativeRandomReferenceStep.randomParameter_stronglyMeasurable
+    𝓕 μ H Λ κ hκ haU haV hell hbU hbV I₀ I₁ u₀ v₀ S v).mono (𝓕.le v)
+  exact ControlledReferenceFamilyDefectPoint.diagonal_measurable
+    𝓕 μ H Λ κ hκ haU haV hell hbU hbV I₀ I₁ u₀ v₀ S P hAs θ v b hvb Z
+      (fun _ _=>le_rfl) (fun _ _=>le_rfl) F hF hFm hsmall hΛ past hu k
+
+include hsmall in
+set_option backward.isDefEq.respectTransparency true in
+theorem spatial_measurable (hΛ:0≤Λ)(k:ℕ):Measurable
+    (fun z:((Fin k→ℝ)×ℝ)×(Ω×HeatCircle)=>Sp k z.1.1 z.1.2 z.2.1 z.2.2):=by
+  have hmap:Measurable (fun z:(((Fin k→ℝ)×ℝ)×(Ω×HeatCircle))×(Fin k→HeatCircle)=>
+      ((separated k (z.1.2.2,z.1.1.1,z.2),z.1.2.1),z.1.1.2)):=
+    (((separated_measurable k).comp (measurable_fst.snd.snd.prodMk
+      (measurable_fst.fst.fst.prodMk measurable_snd))).prodMk measurable_fst.snd.fst).prodMk
+        measurable_fst.fst.snd
+  have hpoint:=point_measurable 𝓕 μ H Λ κ hκ haU haV hell hbU hbV I₀ I₁ u₀ v₀ S
+      P hAs θ v b hvb F hF hFm hsmall hΛ k
+  have hm:=hpoint.comp hmap
+  exact hm.stronglyMeasurable.integral_prod_right'.measurable
+
+/-- Before any stochastic square, the true old-space average is
+joint L1 over original old times, current time, and output root. -/
+theorem spatial_integrable (hΛ:0≤Λ)(k:ℕ)(ω:Ω):Integrable
+    (fun z:((Fin k→ℝ)×ℝ)×HeatCircle=>Sp k z.1.1 z.1.2 ω z.2)
+    ((((Measure.pi (fun _:Fin k=>volume.restrict (Ioc (v:ℝ) b))).prod volume).prod
+      (haarAddCircle:Measure HeatCircle))):=by
+  let p:=past ω
+  have hi:=ControlledReferenceFamilyDefectL1.history_integrable
+    𝓕 μ H Λ κ hκ haU haV hell hbU hbV I₀ I₁ u₀ v₀ S P hAs θ v b hvb Z
+      (fun _ _=>le_rfl) (fun _ _=>le_rfl) F hF hFm hΛ haarAddCircle k p ω
+  have hm:Measurable (fun z:History HeatCircle k×ℝ=>Pt k z.1 ω z.2):=
+    (MixedJointUncutDefectTrace.activePoint_measurable 𝓕 μ H Λ κ hκ haU haV hell hbU hbV I₀ I₁ u₀ v₀ S
+      (ControlledReferenceFamilyLevel.level P (fun z=>κ+aV z) hAs Λ θ v b hvb Z
+        (fun _ _=>le_rfl) (fun _ _=>le_rfl) F hF hFm p) k).comp
+          ((measurable_fst.prodMk measurable_const).prodMk measurable_snd)
+  have hp:=RootHistoryCurrentMeasure.preserving R₀ k (volume:Measure ℝ)
+  have he:historyMeasure (referenceData P (fun z=>κ+aV z) hAs Λ θ v b hvb (0,0)) haarAddCircle k=
+      historyMeasure R₀ haarAddCircle k:=HistoryMeasureGeometry.historyMeasure_eq
+        (R:=referenceData P (fun z=>κ+aV z) hAs Λ θ v b hvb (0,0)) (Q:=R₀) rfl rfl (haarAddCircle:Measure HeatCircle) k
+  rw [he] at hi
+  have hj:Integrable
+      (fun z:(((Fin k→ℝ)×ℝ)×HeatCircle)×(Fin k→HeatCircle)=>
+        Pt k (separated k (z.1.2,z.1.1.1,z.2)) ω z.1.1.2) _:=
+    (hp.integrable_comp hm.aestronglyMeasurable).mpr hi
+  exact hj.integral_prod_left
+
+end SHE.MixedFirstDefectIntegral
